@@ -30,6 +30,9 @@ def mark_complete(post_dir):
 class BadConnectionError(Exception):
     pass
 
+class NoDataDluError(Exception):
+    pass
+
 def process_post(browser, url):
     print('Processing', url)
     browser.get(url)
@@ -119,10 +122,31 @@ def download_image(image_elem, filename):
         print('Fetching ', img)
         urlretrieve(img, filename)
 
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+class all_images_loaded(object):
+    def __init__(self, num_images):
+        self.num_images = num_images
+
+    def __call__(self, driver):
+        images = browser.find_elements_by_class_name('q0xqzc')
+        return len(images) == self.num_images and images[-1].is_displayed()
+
+
+def wait_for_album_load():
+    wait = WebDriverWait(browser, 10)
+    element = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, '[class="v4sE8e"]')))
+    num_images = int(element.text.split(' ')[0])
+    wait.until(all_images_loaded(num_images))
+
+
 def process_album(browser, album_link, post_dir):
     album_link.click()
+    wait_for_album_load()
     # The images are loaded incrementally, so wait for them all to come in.
-    sleep(5)
+    #sleep(5)
     imgs = []
     for elem in browser.find_elements_by_class_name('q0xqzc'):
         # If this is a link to a video, download both the video and the thumbnail.
@@ -131,7 +155,7 @@ def process_album(browser, album_link, post_dir):
             filename = post_dir / ('%d.mov' % len(imgs))
             download_video(filename, elem)
             browser.execute_script("window.history.go(-1)")
-            sleep(5)
+            wait_for_album_load()
         print(elem.get_attribute('src'))
         imgs.append(elem)
 
@@ -193,11 +217,10 @@ def download_video(output_filename, image_elem=None):
         links[0].click()
     sleep(3)
 
-    elems = browser.find_elements_by_css_selector('[data-dlu]')
+    elems = browser.find_elements_by_css_selector('[data-dlu*="video-downloads"]')
     if not elems:
-        raise Exception('Could not find data-dlu')
-    # There are multiple of these data-dlu elems.  The last one is the one we want.
-    video_src = elems[-1].get_attribute('data-dlu')
+        raise NoDataDluError('Could not find data-dlu')
+    video_src = elems[0].get_attribute('data-dlu')
     print('Downloading video', video_src)
     urlretrieve(video_src, output_filename)
     
@@ -217,9 +240,10 @@ special_case_urls = [
     #'https://plus.google.com/113674356928307486947/posts/EP9BuUwRLTC',
     #'https://plus.google.com/113674356928307486947/posts/apiv3iiPUZH',
     #'https://plus.google.com/113674356928307486947/posts/4PrRdaNbNpA'
-    'https://plus.google.com/101566661519100771969/posts/7yvdAmhi55K'
+    #'https://plus.google.com/101566661519100771969/posts/7yvdAmhi55K'
+    'https://plus.google.com/113426841663329337352/posts/25ayydDYFkv'
 ]
-#urls = special_case_urls
+urls = special_case_urls
 
 def init_browser():
     opts = Options()
@@ -233,7 +257,7 @@ try:
         try:
             process_post(browser, url)
             print('\n')
-        except BadConnectionError:
+        except (BadConnectionError, NoDataDluError) as e:
             print('Reopening connection to browser and trying again')
             browser.close()
             browser = init_browser()
