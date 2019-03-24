@@ -55,31 +55,52 @@ def process_post(browser, url):
         # This element may or may not be present.
         post_body_elems = browser.find_elements_by_class_name('jVjeQd')
         if post_body_elems:
-            post_file.write(post_body_elems[0].text)
+            post_file.write(post_body_elems[0].text + '\n\n')
     
     if url in problem_urls:
         print('Skipping problem url')
         return
 
+    processed_post = False
+
     elems = browser.find_elements_by_xpath("//*[contains(text(), 'View album')]")
     if elems:
         print('Found an album', url)
         process_album(browser, elems[0], post_dir)
-        return
+        processed_post = True
+
     elems = browser.find_elements_by_class_name('JZUAbb')
     if elems:
         print('Found a single image', url)
         process_single_image(elems[0], post_dir)
-        return
-    elems = browser.find_elements_by_class_name('f8kJQb')
-    if elems:
-        print('Found a link', url)
-        mark_complete(post_dir)
-        return
+        processed_post = True
 
-    print('Unknown post type', url)
-    unknown_posts.append(url)
+    elems = browser.find_elements_by_css_selector('a.f8kJQb')
+    # Some links seem to be duplicated.
+    links = set()
+    for elem in elems:
+      links.add(elem.get_attribute("href"))
+    for link in links:
+      processed_link = process_link(link, post_dir)
+      if processed_link:
+        processed_post = True
+
+
+    if processed_post:
+      mark_complete(post_dir)
+    else:
+      print('Unknown post type', url)
+      unknown_posts.append(url)
+
     return
+
+def process_link(link, post_dir):
+  print('Processing ' + link)
+  if link.startswith('https://photos.google.com'):
+    with open(post_dir / '_post.txt', 'a') as post_file:
+      post_file.write('Google Photos link ' + link + '\n')
+    return True
+  return False
 
 import concurrent.futures
 
@@ -118,7 +139,6 @@ def process_album(browser, album_link, post_dir):
             except Exception as exc:
                 print(f'{src} {filename} generated an exception: {exc}')
                 raise
-    mark_complete(post_dir)
 
 
 def process_single_image(image_elem, post_dir):
@@ -145,7 +165,6 @@ def process_single_image(image_elem, post_dir):
     except urllib.error.HTTPError as exc:
         print(f'Bad URL {src}, {exc}')
         return
-    mark_complete(post_dir)
 
 special_case_urls = [
     # An Album
