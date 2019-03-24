@@ -1,9 +1,11 @@
+selenium/
+chromedriver
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
 
-chromedriver
 
 # C extensions
 *.so
