@@ -5,6 +5,7 @@ from datetime import datetime
 from pathlib import Path
 from selenium.webdriver import Chrome
 from selenium.webdriver.chrome.options import Options
+from selenium.common.exceptions import TimeoutException
 from time import sleep
 from urllib.request import urlretrieve
 import urllib
@@ -132,7 +133,9 @@ class all_images_loaded(object):
 
     def __call__(self, driver):
         images = browser.find_elements_by_class_name('q0xqzc')
-        return len(images) == self.num_images and images[-1].is_displayed()
+        if len(images) == self.num_images or len(images) > 200:
+            #print('Found all images, waiting for display')
+            return images[-1].is_displayed()
 
 
 def wait_for_album_load():
@@ -145,25 +148,25 @@ def wait_for_album_load():
 def process_album(browser, album_link, post_dir):
     album_link.click()
     wait_for_album_load()
-    imgs = []
-    for elem in browser.find_elements_by_class_name('q0xqzc'):
-        # If this is a link to a video, download both the video and the thumbnail.
-        # We need to download the videos serially because it requires navigation.
-        if 'Video' in elem.get_attribute('alt'):
-            filename = post_dir / ('%d.mov' % len(imgs))
-            download_video(filename, elem)
-            browser.execute_script("window.history.go(-1)")
-            wait_for_album_load()
-        print(elem.get_attribute('src'))
-        imgs.append(elem)
-
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
         # Start the load operations and mark each future with its URL
         future_to_url = {}
-        for i, image_elem in enumerate(imgs):
-            filename = post_dir / ('%d.jpg' % i)
-            future = executor.submit(download_image, image_elem, filename)
-            future_to_url[future] = (image_elem.get_attribute('src'), filename)
+        for image_num, elem in enumerate(browser.find_elements_by_class_name('q0xqzc')):
+            # If this is a link to a video, download both the video and the thumbnail.
+            # We need to download the videos serially because it requires navigation.
+            if 'Video' in elem.get_attribute('alt'):
+                src = get_video_src(elem)
+                browser.execute_script("window.history.go(-1)")
+                wait_for_album_load()
+                filename = post_dir / ('%d.mov' % image_num)            
+                future = executor.submit(download_video_with_src, src, filename)
+                future_to_url[future] = (src, filename)
+
+            print(elem.get_attribute('src'))
+
+            filename = post_dir / ('%d.jpg' % image_num)
+            future = executor.submit(download_image, elem, filename)
+            future_to_url[future] = (elem.get_attribute('src'), filename)
 
         for future in concurrent.futures.as_completed(future_to_url):
             (src, filename) = future_to_url[future]
@@ -205,6 +208,15 @@ def process_single_image(image_elem, post_dir):
         return
 
 def download_video(output_filename, image_elem=None):
+    video_src = get_video_src(image_elem)
+    download_video_with_src(video_src, output_filename)
+
+def download_video_with_src(video_src, output_filename):
+    print('Downloading video', video_src)
+    urlretrieve(video_src, output_filename)
+
+
+def get_video_src(image_elem=None):
     if image_elem:
         parent = image_elem.find_element_by_xpath('..')
         parent.click()
@@ -213,15 +225,17 @@ def download_video(output_filename, image_elem=None):
         if not links:
             raise Exception('Could not find video link')
         links[0].click()
-    sleep(3)
+
+    try:
+        wait = WebDriverWait(browser, 10)
+        wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, '[data-dlu*="video-downloads"]')))
+    except TimeoutException:
+        print('Timed out waiting for data-dlu.  Proceeding anyway...')
 
     elems = browser.find_elements_by_css_selector('[data-dlu*="video-downloads"]')
     if not elems:
         raise NoDataDluError('Could not find data-dlu')
-    video_src = elems[0].get_attribute('data-dlu')
-    print('Downloading video', video_src)
-    urlretrieve(video_src, output_filename)
-    
+    return elems[0].get_attribute('data-dlu')    
 
 special_case_urls = [
     # An Album
@@ -239,7 +253,7 @@ special_case_urls = [
     #'https://plus.google.com/113674356928307486947/posts/apiv3iiPUZH',
     #'https://plus.google.com/113674356928307486947/posts/4PrRdaNbNpA'
     #'https://plus.google.com/101566661519100771969/posts/7yvdAmhi55K'
-    'https://plus.google.com/113426841663329337352/posts/25ayydDYFkv'
+    'https://plus.google.com/101566661519100771969/posts/JNQz9maWKGc'
 ]
 #urls = special_case_urls
 
