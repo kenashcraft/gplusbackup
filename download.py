@@ -12,7 +12,8 @@ import urllib
 from posts import urls
 from problem_posts import urls as problem_urls
 
-dir = Path('/Users/kash/Documents/orchard-backup')
+home = str(Path.home())
+dir = Path(home + '/Documents/orchard-backup')
 unknown_posts = []
 
 COMPLETE_FILE = '.complete'
@@ -75,6 +76,7 @@ def process_post(browser, url):
         print('Found a link', url)
         mark_complete(post_dir)
         return
+
     print('Unknown post type', url)
     unknown_posts.append(url)
     return
