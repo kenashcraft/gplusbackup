@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": "/Library/Frameworks/Python.framework/Versions/3.6/bin/python3",
+    "python.pythonPath": "/Users/misko/homebrew/bin/python3",
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true
 }
