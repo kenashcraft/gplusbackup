@@ -26,4 +26,6 @@ urls = set([
     'https://plus.google.com/103394950172036833741/posts/4SDbcug7ath',
     'https://plus.google.com/103394950172036833741/posts/Bib8JRNBp4Q',
     'https://plus.google.com/101089629011977909027/posts/NHA1c1QE1vL',
+    # Gives a 500 error when trying to download the video
+    'https://plus.google.com/114368354754942378073/posts/epKFtuGvCG8',
 ])
