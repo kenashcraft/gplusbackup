@@ -129,6 +129,7 @@ def process_album(browser, album_link, post_dir):
             filename = post_dir / ('%d.mov' % len(imgs))
             download_video(filename, elem)
             browser.execute_script("window.history.go(-1)")
+            sleep(5)
         print(elem.get_attribute('src'))
         imgs.append(elem)
 
@@ -213,7 +214,8 @@ special_case_urls = [
     # A video
     #'https://plus.google.com/113674356928307486947/posts/EP9BuUwRLTC',
     #'https://plus.google.com/113674356928307486947/posts/apiv3iiPUZH',
-    'https://plus.google.com/113674356928307486947/posts/4PrRdaNbNpA'
+    #'https://plus.google.com/113674356928307486947/posts/4PrRdaNbNpA'
+    'https://plus.google.com/101566661519100771969/posts/7yvdAmhi55K'
 ]
 #urls = special_case_urls
 
