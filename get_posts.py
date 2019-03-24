@@ -9,12 +9,6 @@ from time import sleep
 from urllib.request import urlretrieve
 import urllib
 
-from posts import urls
-from problem_posts import urls as problem_urls
-
-dir = Path('/Users/kash/Documents/orchard-backup')
-
-
 class BadConnectionError(Exception):
     pass
 
@@ -53,9 +47,11 @@ try:
             print('while processing ', url)
             raise
 finally:
-    with open('found_posts', 'w') as output:
+    with open('found_posts.py', 'w') as output:
+        output.write('urls = [\n')
         for p in posts:
-            output.write(p + '\n')
+            output.write('  "' + p + '",\n')
+        output.write(']')
     print(posts)
     browser.close()
 
