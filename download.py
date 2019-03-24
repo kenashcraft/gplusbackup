@@ -9,7 +9,7 @@ from time import sleep
 from urllib.request import urlretrieve
 import urllib
 
-#from posts import urls
+from posts import urls
 from problem_posts import urls as problem_urls
 
 home = str(Path.home())
