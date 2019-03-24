@@ -281,7 +281,7 @@ try:
         except:
             print("Unexpected error:", sys.exc_info()[0])
             print('while processing ', url)
-            raise
+            unknown_posts.append(url)
 finally:
     print('Not handled:')
     for entry in unknown_posts:
