@@ -227,7 +227,7 @@ def get_video_src(image_elem=None):
         links[0].click()
 
     try:
-        wait = WebDriverWait(browser, 10)
+        wait = WebDriverWait(browser, 3)
         wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, '[data-dlu*="video-downloads"]')))
     except TimeoutException:
         print('Timed out waiting for data-dlu.  Proceeding anyway...')
