@@ -98,7 +98,10 @@ def process_post(browser, url):
 
 def process_link(link, post_dir):
   print('Processing ' + link)
-  if link.startswith('https://photos.google.com/') or link.startswith('https://photos.app.goo.gl/'):
+  if link.startswith('https://photos.google.com/') or \
+     link.startswith('https://photos.app.goo.gl/') or \
+     link.startswith('https://goo.gl/photos/')
+    print('Adding Google Photos link to post')
     with open(post_dir / '_post.txt', 'a') as post_file:
       post_file.write('Google Photos link ' + link + '\n')
     return True
