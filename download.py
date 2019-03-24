@@ -145,8 +145,6 @@ def wait_for_album_load():
 def process_album(browser, album_link, post_dir):
     album_link.click()
     wait_for_album_load()
-    # The images are loaded incrementally, so wait for them all to come in.
-    #sleep(5)
     imgs = []
     for elem in browser.find_elements_by_class_name('q0xqzc'):
         # If this is a link to a video, download both the video and the thumbnail.
@@ -243,7 +241,7 @@ special_case_urls = [
     #'https://plus.google.com/101566661519100771969/posts/7yvdAmhi55K'
     'https://plus.google.com/113426841663329337352/posts/25ayydDYFkv'
 ]
-urls = special_case_urls
+#urls = special_case_urls
 
 def init_browser():
     opts = Options()
