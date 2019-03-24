@@ -12,9 +12,6 @@ import urllib
 from posts import urls
 from problem_posts import urls as problem_urls
 
-# TODO: Make this platform independent.
-
-from pathlib import Path
 home = str(Path.home())
 dir = Path(home + '/Documents/orchard-backup')
 unknown_posts = []
