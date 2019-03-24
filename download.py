@@ -9,7 +9,7 @@ from time import sleep
 from urllib.request import urlretrieve
 import urllib
 
-from posts import urls
+#from posts import urls
 from problem_posts import urls as problem_urls
 
 home = str(Path.home())
@@ -83,7 +83,8 @@ def process_post(browser, url):
 
 import concurrent.futures
 
-def download_image(src, filename):
+def download_image(image_elem, filename):    
+    src = image_elem.get_attribute('src')
     if filename.exists():
         print('Already have', filename)
     else:
@@ -99,17 +100,22 @@ def process_album(browser, album_link, post_dir):
     sleep(5)
     imgs = []
     for elem in browser.find_elements_by_class_name('q0xqzc'):
-        src = elem.get_attribute('src')
-        print(src)
-        imgs.append(src)
+        # If this is a link to a video, download both the video and the thumbnail.
+        # We need to download the videos serially because it requires navigation.
+        if 'Video' in elem.get_attribute('alt'):
+            filename = post_dir / ('%d.mov' % len(imgs))
+            download_video(filename, elem)
+            browser.execute_script("window.history.go(-1)")
+        print(elem.get_attribute('src'))
+        imgs.append(elem)
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
         # Start the load operations and mark each future with its URL
         future_to_url = {}
-        for i, src in enumerate(imgs):
+        for i, image_elem in enumerate(imgs):
             filename = post_dir / ('%d.jpg' % i)
-            future = executor.submit(download_image, src, filename)
-            future_to_url[future] = (src, filename)
+            future = executor.submit(download_image, image_elem, filename)
+            future_to_url[future] = (image_elem.get_attribute('src'), filename)
 
         for future in concurrent.futures.as_completed(future_to_url):
             (src, filename) = future_to_url[future]
@@ -124,6 +130,11 @@ def process_album(browser, album_link, post_dir):
 def process_single_image(image_elem, post_dir):
     src = image_elem.get_attribute('src')
     print(src)
+    
+    # If this is a link to a video, download both the video and the thumbnail.
+    if 'Video' in image_elem.get_attribute('alt'):
+        download_video(post_dir / 'post_video.mov')
+
     if 'proxy' in src:
         # This is an image from some external page.
         output_file = post_dir / 'single.webp'
@@ -147,6 +158,26 @@ def process_single_image(image_elem, post_dir):
         return
     mark_complete(post_dir)
 
+def download_video(output_filename, image_elem=None):
+    if image_elem:
+        parent = image_elem.find_element_by_xpath('..')
+        parent.click()
+    else:
+        links = browser.find_elements_by_class_name('e8zLFb')
+        if not links:
+            raise Exception('Could not find video link')
+        links[0].click()
+    sleep(3)
+
+    elems = browser.find_elements_by_css_selector('[data-dlu]')
+    if not elems:
+        raise Exception('Could not find data-dlu')
+    # There are multiple of these data-dlu elems.  The last one is the one we want.
+    video_src = elems[-1].get_attribute('data-dlu')
+    print('Downloading video', video_src)
+    urlretrieve(video_src, output_filename)
+    
+
 special_case_urls = [
     # An Album
     # "https://plus.google.com/113674356928307486947/posts/HHHrcxtdPaw",
@@ -159,9 +190,11 @@ special_case_urls = [
     # A post without any images or links.
     # 'https://plus.google.com/106207314024973234209/posts/4DtJYna5ANY',
     # A video
-    'https://plus.google.com/113674356928307486947/posts/EP9BuUwRLTC'
+    #'https://plus.google.com/113674356928307486947/posts/EP9BuUwRLTC',
+    #'https://plus.google.com/113674356928307486947/posts/apiv3iiPUZH',
+    'https://plus.google.com/113674356928307486947/posts/4PrRdaNbNpA'
 ]
-#urls = special_case_urls
+urls = special_case_urls
 
 def init_browser():
     opts = Options()
