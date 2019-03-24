@@ -28,7 +28,7 @@ def get_all_posts(posts, community_url):
         for link in links:
             posts.add(link.get_attribute('href'))
         browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        sleep(2)
+        sleep(5)
 
 
 def init_browser():
