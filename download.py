@@ -216,6 +216,17 @@ def download_video_with_src(video_src, output_filename):
     urlretrieve(video_src, output_filename)
 
 
+class data_dlu_visible(object):
+    def __init__(self):
+        pass
+    
+    def __call__(self, driver):
+        elems = browser.find_elements_by_css_selector('[data-dlu*="video-downloads"]')
+        for elem in elems:
+            if elem.is_displayed():
+                return elem.get_attribute('data-dlu') 
+        return False
+
 def get_video_src(image_elem=None):
     if image_elem:
         parent = image_elem.find_element_by_xpath('..')
@@ -226,16 +237,8 @@ def get_video_src(image_elem=None):
             raise Exception('Could not find video link')
         links[0].click()
 
-    try:
-        wait = WebDriverWait(browser, 3)
-        wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, '[data-dlu*="video-downloads"]')))
-    except TimeoutException:
-        print('Timed out waiting for data-dlu.  Proceeding anyway...')
-
-    elems = browser.find_elements_by_css_selector('[data-dlu*="video-downloads"]')
-    if not elems:
-        raise NoDataDluError('Could not find data-dlu')
-    return elems[0].get_attribute('data-dlu')    
+    wait = WebDriverWait(browser, 3)
+    return wait.until(data_dlu_visible())
 
 special_case_urls = [
     # An Album
@@ -253,9 +256,10 @@ special_case_urls = [
     #'https://plus.google.com/113674356928307486947/posts/apiv3iiPUZH',
     #'https://plus.google.com/113674356928307486947/posts/4PrRdaNbNpA'
     #'https://plus.google.com/101566661519100771969/posts/7yvdAmhi55K'
-    'https://plus.google.com/101566661519100771969/posts/JNQz9maWKGc'
+    #'https://plus.google.com/101566661519100771969/posts/JNQz9maWKGc'
+    'https://plus.google.com/101566661519100771969/posts/YUhTw2zGiPD'
 ]
-#urls = special_case_urls
+urls = special_case_urls
 
 def init_browser():
     opts = Options()
