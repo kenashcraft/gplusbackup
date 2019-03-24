@@ -27,7 +27,7 @@ def get_all_posts(posts, community_url):
 
 def init_browser():
     opts = Options()
-    opts.add_argument("user-data-dir=selenium") 
+    opts.add_argument("user-data-dir=selenium")
     return Chrome(chrome_options=opts)
 
 url = 'https://plus.google.com/communities/117423687884791382910'
@@ -37,7 +37,9 @@ posts = set()
 try:
     while True:
         try:
-            get_all_posts(posts, url)
+          if sys.argv[1].startswith('https://plus.google.com/communities'):
+            url = sys.argv[1]
+          get_all_posts(posts, url)
         except BadConnectionError:
             print('Reopening connection to browser and trying again')
             browser.close()
