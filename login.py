@@ -14,11 +14,11 @@ opts = Options()
 opts.add_argument("user-data-dir=selenium") 
 browser = Chrome(chrome_options=opts)
 
-url = "https://plus.google.com/113674356928307486947/posts/HHHrcxtdPaw"
+url = "https://plus.google.com/"
 browser.get(url)
 print(browser.title)
 
-sleep(30)
+input("Login now.  Press enter when finished...")
 
 browser.close()
 

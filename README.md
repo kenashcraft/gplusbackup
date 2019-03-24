@@ -14,4 +14,5 @@ to my path.
 pipenv install --dev
 ```
 
+Download chromedriver and make sure it is in your path.
 http://chromedriver.chromium.org/downloads
