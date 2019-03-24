@@ -84,8 +84,8 @@ def process_post(browser, url):
       links.add(elem.get_attribute("href"))
     for link in links:
       processed_link = process_link(link, post_dir)
-      browser.get(url) # Go back to the post in case we navigated away
       if processed_link:
+        browser.get(url) # Go back to the post in case we navigated away
         processed_post = True
 
     if processed_post:
