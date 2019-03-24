@@ -230,7 +230,12 @@ class data_dlu_visible(object):
 def get_video_src(image_elem=None):
     if image_elem:
         parent = image_elem.find_element_by_xpath('..')
-        parent.click()
+        try:
+            parent.click()
+        except:
+            # Clicking can be flaky.  Maybe the JS takes time to load?
+            sleep(1)
+            parent.click()
     else:
         links = browser.find_elements_by_class_name('e8zLFb')
         if not links:
@@ -257,7 +262,7 @@ special_case_urls = [
     #'https://plus.google.com/113674356928307486947/posts/4PrRdaNbNpA'
     #'https://plus.google.com/101566661519100771969/posts/7yvdAmhi55K'
     #'https://plus.google.com/101566661519100771969/posts/JNQz9maWKGc'
-    'https://plus.google.com/101566661519100771969/posts/YUhTw2zGiPD'
+    'https://plus.google.com/115328904044492567848/posts/TPQjjQBUYok'
 ]
 #urls = special_case_urls
 
