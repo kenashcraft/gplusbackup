@@ -1,4 +1,4 @@
-# Login: Misko
+# Login: misko.hevery@gmail.com
 # Kids: Adam; Lily; Dorian
 urls = [
   "https://plus.google.com/+MortenRoss/posts/ZR81bmeMF75",

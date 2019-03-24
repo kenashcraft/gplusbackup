@@ -1,4 +1,4 @@
-# Login: Misko
+# Login: misko@google.com
 # Oliver; Ethan; Sam; Griffin
 urls = [
   "https://plus.google.com/110034162958678934957/posts/7ATN3v5N17Z",
