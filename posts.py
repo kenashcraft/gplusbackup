@@ -1,1 +1,1 @@
-from posts_graduation_2021 import urls
+from posts_graduation_2015 import urls
