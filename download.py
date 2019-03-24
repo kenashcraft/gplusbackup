@@ -215,7 +215,7 @@ special_case_urls = [
     #'https://plus.google.com/113674356928307486947/posts/apiv3iiPUZH',
     'https://plus.google.com/113674356928307486947/posts/4PrRdaNbNpA'
 ]
-urls = special_case_urls
+#urls = special_case_urls
 
 def init_browser():
     opts = Options()
