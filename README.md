@@ -38,13 +38,13 @@ http://chromedriver.chromium.org/downloads
 
 1.  Download all posts for the community:
 
-    1.  Modify `posts.py` to import from the downloaded `found_posts.py` file
+    *   Modify `posts.py` to import from the downloaded `found_posts.py` file
 
     ```
     from found_posts import urls
     ```
 
-    1.  Run
+    *   Run
 
     ```
     pipenv run ./download.py
