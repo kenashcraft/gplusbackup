@@ -47,7 +47,7 @@
 
     to install the required Python dependencies.
 
-1.  Download (chromedriver)[http://chromedriver.chromium.org/downloads] and make
+1.  Download [chromedriver](http://chromedriver.chromium.org/downloads) and make
     sure it is in your PATH environment variable.
 
 ## Download community content
