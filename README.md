@@ -1,18 +1,54 @@
 # gplusbackup
 
-*   Install python3
+## Setup
 
-This project uses [pipenv](https://pipenv.readthedocs.io/en/latest/) for
-dependencies. `pip3 install --user pipenv` Ensure pipenv is in your path. I had
-to add `/Users/kashcraft/Library/Python/3.7/bin` to my path. Another had to add
-`~/.local/bin`.
+1.  Install python3
 
-```
-pipenv install --dev
-```
+    For linux run
 
-Download chromedriver and make sure it is in your PATH environment variable.
-http://chromedriver.chromium.org/downloads
+    ```
+    sudo apt-get install python3
+    ```
+
+1.  Install pipenv
+
+    This project uses [pipenv](https://pipenv.readthedocs.io/en/latest/) for
+    dependencies. To install `pipenv` run
+
+    ```
+    pip3 install --user pipenv
+    ```
+
+    If you do not have pip3 installed run
+
+    ```
+    sudo apt-get install python3-pip
+    ```
+
+1.  Ensure `pipenv` is in your path. On Mac add something like
+
+    ```
+    /Users/kashcraft/Library/Python/3.7/bin
+    ```
+
+    to your path. On Linux add
+
+    ```
+    ~/.local/bin
+    ```
+
+    to your path.
+
+1.  Navigate to the `gplusbackup` directory and run
+
+    ```
+    pipenv install --dev
+    ```
+
+    to install the required Python dependencies.
+
+1.  Download (chromedriver)[http://chromedriver.chromium.org/downloads] and make
+    sure it is in your PATH environment variable.
 
 ## Download community content
 
@@ -30,6 +66,8 @@ http://chromedriver.chromium.org/downloads
     ```
     pipenv run ./get_posts.py <link_to_community>
     ```
+
+    **Do not interact with the browser for this step, just watch it.**
 
     This will open up a Chrome browser, navigate to the community, then
     continually scroll down until all posts are seen. Then Ctrl+C the script and
